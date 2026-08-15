@@ -151,6 +151,16 @@ export const ingestDocument = async (file: File) => {
     method: 'POST',
     body: formData,
   });
-  if (!res.ok) throw new Error('Failed to ingest document');
+  
+  if (!res.ok) {
+    let errMessage = 'Failed to ingest document';
+    try {
+      const errData = await res.json();
+      errMessage = errData.detail || errMessage;
+    } catch (e) {
+      errMessage = `HTTP Error ${res.status}: Backend might not be deployed or running.`;
+    }
+    throw new Error(errMessage);
+  }
   return res.json();
 };

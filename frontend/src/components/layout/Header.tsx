@@ -44,7 +44,7 @@ export function Header({ activeTab, onTabChange }: HeaderProps) {
           <span className="font-display-xl text-headline-md font-bold text-tertiary-orange tracking-tighter block md:hidden">NEO-RAG</span>
           <nav className="hidden md:flex gap-6 items-center">
             <a onClick={(e) => { e.preventDefault(); onTabChange('explorer'); }} className={getNavClass('explorer')} href="#">Explorer</a>
-            <a onClick={(e) => { e.preventDefault(); onTabChange('dashboard'); }} className={getNavClass('dashboard')} href="#">Dashboard</a>
+            <a onClick={(e) => { e.preventDefault(); onTabChange('compute'); }} className={getNavClass('compute')} href="#">Compute</a>
             <a onClick={(e) => { e.preventDefault(); onTabChange('history'); }} className={getNavClass('history')} href="#">History</a>
           </nav>
         </div>
