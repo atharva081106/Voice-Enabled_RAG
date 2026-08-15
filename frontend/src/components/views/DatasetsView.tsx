@@ -1,12 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { getDatasets } from '../../api';
+import React, { useState, useEffect, useRef } from 'react';
+import { getDatasets, ingestDocument } from '../../api';
 
 export const DatasetsView: React.FC = () => {
   const [datasets, setDatasets] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const fetchDatasets = async () => {
+      setLoading(true);
       try {
         const data = await getDatasets();
         setDatasets([
@@ -27,6 +30,35 @@ export const DatasetsView: React.FC = () => {
     fetchDatasets();
   }, []);
 
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setUploading(true);
+      const res = await ingestDocument(file);
+      alert(`Successfully ingested ${res.chunks_indexed} chunks!`);
+      // Refetch datasets to update count
+      const data = await getDatasets();
+      setDatasets([
+        {
+          id: '1',
+          name: data.collection_name || 'unknown-collection',
+          language: 'en',
+          chunks: data.total_vectors || 0,
+          status: 'Active'
+        }
+      ]);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to upload document.');
+    } finally {
+      setUploading(false);
+      // Reset input
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
   return (
     <main className="flex-1 p-margin-mobile md:p-margin-desktop w-full flex flex-col gap-8">
       <div className="flex justify-between items-end border-b-hard pb-4">
@@ -34,8 +66,19 @@ export const DatasetsView: React.FC = () => {
           <h2 className="font-headline-md text-headline-md uppercase text-primary mb-2">Datasets</h2>
           <p className="font-body-md text-on-surface-variant">Manage the vector database sources and chunking strategies.</p>
         </div>
-        <button className="bg-tertiary-orange text-primary border-hard shadow-hard py-3 px-6 uppercase text-label-bold font-label-bold hover:bg-primary hover:text-tertiary-orange active-press transition-colors cursor-pointer">
-          + Ingest New
+        <input 
+          type="file" 
+          ref={fileInputRef} 
+          style={{ display: 'none' }} 
+          accept=".txt,.pdf"
+          onChange={handleFileChange}
+        />
+        <button 
+          onClick={() => fileInputRef.current?.click()}
+          disabled={uploading}
+          className="bg-tertiary-orange text-primary border-hard shadow-hard py-3 px-6 uppercase text-label-bold font-label-bold hover:bg-primary hover:text-tertiary-orange active-press transition-colors cursor-pointer disabled:opacity-50"
+        >
+          {uploading ? 'Ingesting...' : '+ Ingest New'}
         </button>
       </div>
 

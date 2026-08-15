@@ -23,10 +23,6 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
         NEW PIPELINE
       </button>
       <div className="flex-1 flex flex-col gap-2">
-        <a onClick={(e) => { e.preventDefault(); onTabChange('dashboard'); }} className={getTabClass('dashboard')} href="#">
-          <span className="material-symbols-outlined">dashboard</span>
-          Dashboard
-        </a>
         <a onClick={(e) => { e.preventDefault(); onTabChange('datasets'); }} className={getTabClass('datasets')} href="#">
           <span className="material-symbols-outlined">database</span>
           Datasets

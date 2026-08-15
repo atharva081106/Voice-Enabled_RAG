@@ -141,3 +141,16 @@ export const getDatasets = async () => {
   if (!res.ok) throw new Error('Failed to fetch datasets');
   return res.json();
 };
+
+export const ingestDocument = async (file: File) => {
+  const API_BASE = import.meta.env.VITE_API_URL || '';
+  const formData = new FormData();
+  formData.append('file', file);
+  
+  const res = await fetch(`${API_BASE}/api/datasets/ingest`, {
+    method: 'POST',
+    body: formData,
+  });
+  if (!res.ok) throw new Error('Failed to ingest document');
+  return res.json();
+};

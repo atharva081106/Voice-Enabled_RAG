@@ -16,10 +16,11 @@ import { SupportView } from './components/views/SupportView';
 import { ProfileView } from './components/views/ProfileView';
 import { SettingsView } from './components/views/SettingsView';
 import { LandingView } from './components/views/LandingView';
+import { ExplorerView } from './components/views/ExplorerView';
 
 export default function App() {
   const [showLanding, setShowLanding] = useState(true);
-  const [activeTab, setActiveTab] = useState('compute');
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [isProcessing, setIsProcessing] = useState(false);
   const [response, setResponse] = useState<FinalResponse | null>(null);
 
@@ -37,7 +38,7 @@ export default function App() {
   };
 
   const renderContent = () => {
-    if (activeTab === 'compute' || activeTab === 'dashboard') {
+    if (activeTab === 'dashboard') {
       return (
         <main className="flex-1 p-margin-mobile md:p-margin-desktop w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
           
@@ -99,6 +100,7 @@ export default function App() {
       );
     }
 
+    if (activeTab === 'explorer') return <ExplorerView />;
     if (activeTab === 'history') return <HistoryView />;
     if (activeTab === 'datasets') return <DatasetsView />;
     if (activeTab === 'models') return <ModelsView />;
@@ -117,13 +119,13 @@ export default function App() {
             {activeTab.replace('-', ' ')}
           </h2>
           <p className="font-body-md text-body-md text-on-surface-variant">
-            This module is currently under construction. Please check back later or use the Compute pipeline.
+            This module is currently under construction. Please check back later or use the Dashboard.
           </p>
           <button 
-            onClick={() => setActiveTab('compute')}
+            onClick={() => setActiveTab('dashboard')}
             className="mt-8 bg-tertiary-orange text-primary border-hard shadow-hard font-label-bold text-label-bold uppercase py-3 px-8 hover:bg-primary hover:text-tertiary-orange active-press transition-colors cursor-pointer"
           >
-            Back to Compute
+            Back to Dashboard
           </button>
         </div>
       </main>

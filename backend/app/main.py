@@ -4,6 +4,8 @@ from pydantic import BaseModel
 from typing import Optional
 import uvicorn
 import uuid
+from langchain_community.document_loaders import PyPDFLoader, TextLoader
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from app.models import QueryState, FinalResponse, LatencyMetrics, DatasetResponse, DatasetItem, TextQueryRequest, TextQueryResponse, Source
 from app.workflow import workflow, qdrant, mistral_client
@@ -196,6 +198,67 @@ async def submit_support(data: dict):
 @app.get("/api/history")
 async def get_history():
     return HISTORY
+
+@app.post("/api/datasets/ingest")
+async def ingest_dataset(file: UploadFile = File(...)):
+    if not qdrant or not mistral_client:
+        raise HTTPException(status_code=500, detail="Qdrant or Mistral client not initialized")
+        
+    temp_dir = tempfile.gettempdir()
+    temp_filepath = os.path.join(temp_dir, f"{uuid.uuid4()}_{file.filename}")
+    with open(temp_filepath, "wb") as f:
+        f.write(await file.read())
+        
+    try:
+        # 1. Load document
+        if file.filename.endswith(".pdf"):
+            loader = PyPDFLoader(temp_filepath)
+        elif file.filename.endswith(".txt"):
+            loader = TextLoader(temp_filepath, encoding='utf8')
+        else:
+            raise HTTPException(status_code=400, detail="Unsupported file format. Please upload PDF or TXT.")
+            
+        docs = loader.load()
+        
+        # 2. Split into chunks
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
+        chunks = text_splitter.split_documents(docs)
+        if not chunks:
+            return {"status": "error", "message": "No text found in document."}
+            
+        # 3. Embed chunks
+        texts = [chunk.page_content for chunk in chunks]
+        embeddings_response = mistral_client.embeddings.create(
+            model="mistral-embed",
+            inputs=texts
+        )
+        embeddings = [data.embedding for data in embeddings_response.data]
+        
+        # 4. Insert into Qdrant
+        from qdrant_client.models import PointStruct
+        points = []
+        for i, (chunk, embedding) in enumerate(zip(chunks, embeddings)):
+            points.append(PointStruct(
+                id=str(uuid.uuid4()),
+                vector=embedding,
+                payload={
+                    "text": chunk.page_content,
+                    "source": file.filename,
+                    "url": "user-uploaded"
+                }
+            ))
+            
+        qdrant.upsert(
+            collection_name="msmarco_chunks",
+            points=points
+        )
+        
+        return {"status": "success", "chunks_indexed": len(chunks), "filename": file.filename}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        if os.path.exists(temp_filepath):
+            os.remove(temp_filepath)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
