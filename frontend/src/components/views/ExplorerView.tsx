@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { submitTextRetrieval, Source } from '../../api';
+import { submitTextRetrieval, type Source } from '../../api';
 import { SourceCard } from '../results/SourceCard';
 
 export const ExplorerView: React.FC = () => {
