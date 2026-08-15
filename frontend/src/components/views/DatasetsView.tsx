@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { getDatasets } from '../../api';
 
 export const DatasetsView: React.FC = () => {
   const [datasets, setDatasets] = useState<any[]>([]);
@@ -8,13 +8,13 @@ export const DatasetsView: React.FC = () => {
   useEffect(() => {
     const fetchDatasets = async () => {
       try {
-        const res = await axios.get('http://localhost:8000/api/datasets');
+        const data = await getDatasets();
         setDatasets([
           {
             id: '1',
-            name: res.data.collection_name || 'unknown-collection',
+            name: data.collection_name || 'unknown-collection',
             language: 'en',
-            chunks: res.data.total_vectors || 0,
+            chunks: data.total_vectors || 0,
             status: 'Active'
           }
         ]);

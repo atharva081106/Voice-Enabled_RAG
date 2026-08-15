@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { getHistory } from '../../api';
 
 interface HistoryItem {
   id: string;
@@ -16,8 +16,8 @@ export const HistoryView: React.FC = () => {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/api/history');
-        setHistory(response.data);
+        const data = await getHistory();
+        setHistory(data);
       } catch (error) {
         console.error('Failed to fetch history:', error);
       } finally {

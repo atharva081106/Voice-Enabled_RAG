@@ -125,3 +125,19 @@ export const submitSupportTicket = async (data: any) => {
   if (!res.ok) throw new Error('Failed to submit ticket');
   return res.json();
 };
+
+// History API
+export const getHistory = async () => {
+  const API_BASE = import.meta.env.VITE_API_URL || '';
+  const res = await fetch(`${API_BASE}/api/history`);
+  if (!res.ok) throw new Error('Failed to fetch history');
+  return res.json();
+};
+
+// Datasets API
+export const getDatasets = async () => {
+  const API_BASE = import.meta.env.VITE_API_URL || '';
+  const res = await fetch(`${API_BASE}/api/datasets`);
+  if (!res.ok) throw new Error('Failed to fetch datasets');
+  return res.json();
+};
