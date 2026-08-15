@@ -28,6 +28,8 @@ export const LandingView = ({ onLaunch }: LandingViewProps) => {
 
       {/* Hero Section */}
       <main className="flex-1 flex flex-col items-center justify-center text-center p-6 md:p-12 relative overflow-hidden bg-surface">
+        {/* Abstract Background Element */}
+        <div className="absolute bottom-20 right-20 w-64 h-64 bg-tertiary-orange rounded-full border-hard opacity-20 -z-10"></div>
 
         <div className="max-w-4xl flex flex-col items-center">
           <div className="inline-block bg-surface-dim border-hard px-4 py-1 mb-6 transform -rotate-2">
@@ -36,7 +38,7 @@ export const LandingView = ({ onLaunch }: LandingViewProps) => {
           
           <h1 className="font-headline-lg text-headline-lg uppercase text-primary mb-6 leading-none tracking-tighter" style={{ fontSize: 'clamp(4rem, 10vw, 8rem)' }}>
             Speak.<br/>Retrieve.<br/>
-            <span className="text-on-primary bg-primary px-4 inline-block transform rotate-1 mt-2">Generate.</span>
+            <span className="text-primary bg-tertiary-orange px-4 inline-block transform rotate-1 mt-2">Generate.</span>
           </h1>
           
           <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mb-12">
@@ -45,7 +47,7 @@ export const LandingView = ({ onLaunch }: LandingViewProps) => {
 
           <button 
             onClick={onLaunch}
-            className="bg-primary text-on-primary border-hard shadow-hard-lg py-4 px-12 font-headline-sm text-headline-sm uppercase hover:bg-surface-paper hover:text-primary active-press transition-all cursor-pointer flex items-center gap-4 group"
+            className="bg-tertiary-orange text-primary border-hard shadow-hard-lg py-4 px-12 font-headline-sm text-headline-sm uppercase hover:bg-primary hover:text-tertiary-orange active-press transition-all cursor-pointer flex items-center gap-4 group"
           >
             Enter the Matrix
             <span className="material-symbols-outlined group-hover:translate-x-2 transition-transform">arrow_forward</span>
@@ -72,7 +74,7 @@ export const LandingView = ({ onLaunch }: LandingViewProps) => {
         </div>
 
         <div className="p-8 md:p-12 flex flex-col gap-4 hover:bg-surface-dim transition-colors group cursor-pointer">
-          <div className="w-16 h-16 bg-surface-dim border-hard flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+          <div className="w-16 h-16 bg-tertiary-orange border-hard flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
             <span className="material-symbols-outlined text-3xl">bolt</span>
           </div>
           <h2 className="font-headline-sm text-headline-sm uppercase text-primary">LLM Synthesis</h2>
