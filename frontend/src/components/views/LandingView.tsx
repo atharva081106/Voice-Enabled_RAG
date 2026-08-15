@@ -28,8 +28,6 @@ export const LandingView = ({ onLaunch }: LandingViewProps) => {
 
       {/* Hero Section */}
       <main className="flex-1 flex flex-col items-center justify-center text-center p-6 md:p-12 relative overflow-hidden bg-surface">
-        {/* Abstract Background Element */}
-        <div className="absolute bottom-20 right-20 w-64 h-64 bg-tertiary-orange rounded-full border-hard opacity-20 -z-10"></div>
 
         <div className="max-w-4xl flex flex-col items-center">
           <div className="inline-block bg-surface-dim border-hard px-4 py-1 mb-6 transform -rotate-2">
