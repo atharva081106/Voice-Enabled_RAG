@@ -1,4 +1,3 @@
-import React from 'react';
 import type { Source } from '../../api';
 
 interface SourceCardProps {

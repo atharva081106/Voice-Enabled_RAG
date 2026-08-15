@@ -1,4 +1,3 @@
-import React from 'react';
 import type { LatencyMetrics } from '../../api';
 
 interface LatencyTimelineProps {
