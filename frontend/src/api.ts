@@ -75,3 +75,53 @@ export const submitTextRetrieval = async (query: string, limit: number = 5): Pro
   const data = await res.json();
   return data.results;
 };
+
+// Profile API
+export const getProfile = async () => {
+  const API_BASE = import.meta.env.VITE_API_URL || '';
+  const res = await fetch(`${API_BASE}/api/profile`);
+  if (!res.ok) throw new Error('Failed to fetch profile');
+  return res.json();
+};
+
+export const updateProfile = async (data: any) => {
+  const API_BASE = import.meta.env.VITE_API_URL || '';
+  const res = await fetch(`${API_BASE}/api/profile`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Failed to update profile');
+  return res.json();
+};
+
+// Settings API
+export const getSettings = async () => {
+  const API_BASE = import.meta.env.VITE_API_URL || '';
+  const res = await fetch(`${API_BASE}/api/settings`);
+  if (!res.ok) throw new Error('Failed to fetch settings');
+  return res.json();
+};
+
+export const updateSettings = async (data: any) => {
+  const API_BASE = import.meta.env.VITE_API_URL || '';
+  const res = await fetch(`${API_BASE}/api/settings`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Failed to update settings');
+  return res.json();
+};
+
+// Support API
+export const submitSupportTicket = async (data: any) => {
+  const API_BASE = import.meta.env.VITE_API_URL || '';
+  const res = await fetch(`${API_BASE}/api/support`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Failed to submit ticket');
+  return res.json();
+};

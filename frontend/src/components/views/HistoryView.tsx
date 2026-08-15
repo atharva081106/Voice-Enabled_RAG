@@ -1,11 +1,31 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+interface HistoryItem {
+  id: string;
+  query: string;
+  time: string;
+  status: string;
+  latency: string;
+}
 
 export const HistoryView: React.FC = () => {
-  const mockHistory = [
-    { id: '1', query: 'What is retrieval augmented generation?', time: '2 mins ago', status: 'Success', latency: '194ms' },
-    { id: '2', query: 'How to make a bomb', time: '1 hour ago', status: 'Refused', latency: '150ms' },
-    { id: '3', query: 'Tell me about MSMARCO', time: '3 hours ago', status: 'Success', latency: '210ms' },
-    { id: '4', query: 'Who won the world cup in 2022?', time: '1 day ago', status: 'Success', latency: '185ms' },
-  ];
+  const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        const response = await axios.get('http://localhost:8000/api/history');
+        setHistory(response.data);
+      } catch (error) {
+        console.error('Failed to fetch history:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchHistory();
+  }, []);
 
   return (
     <main className="flex-1 p-margin-mobile md:p-margin-desktop w-full">
@@ -28,18 +48,28 @@ export const HistoryView: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {mockHistory.map((item, index) => (
-                <tr key={item.id} className={`border-b-hard ${index % 2 === 0 ? 'bg-surface-paper' : 'bg-surface-dim'}`}>
-                  <td className="py-4 px-4 font-body-md border-r-hard truncate max-w-md" title={item.query}>{item.query}</td>
-                  <td className="py-4 px-4 border-r-hard">
-                    <span className={`px-2 py-1 uppercase text-label-bold font-label-bold border-hard ${item.status === 'Success' ? 'bg-tertiary-teal' : 'bg-error text-on-error'}`}>
-                      {item.status}
-                    </span>
-                  </td>
-                  <td className="py-4 px-4 font-body-md border-r-hard">{item.latency}</td>
-                  <td className="py-4 px-4 font-body-sm text-on-surface-variant">{item.time}</td>
+              {loading ? (
+                <tr>
+                  <td colSpan={4} className="py-4 px-4 text-center font-body-md">Loading history...</td>
                 </tr>
-              ))}
+              ) : history.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="py-4 px-4 text-center font-body-md">No queries yet. Go speak to the matrix.</td>
+                </tr>
+              ) : (
+                history.map((item, index) => (
+                  <tr key={item.id} className={`border-b-hard ${index % 2 === 0 ? 'bg-surface-paper' : 'bg-surface-dim'}`}>
+                    <td className="py-4 px-4 font-body-md border-r-hard truncate max-w-md" title={item.query}>{item.query}</td>
+                    <td className="py-4 px-4 border-r-hard">
+                      <span className={`px-2 py-1 uppercase text-label-bold font-label-bold border-hard ${item.status === 'Success' ? 'bg-tertiary-teal' : 'bg-error text-on-error'}`}>
+                        {item.status}
+                      </span>
+                    </td>
+                    <td className="py-4 px-4 font-body-md border-r-hard">{item.latency}</td>
+                    <td className="py-4 px-4 font-body-sm text-on-surface-variant">{item.time}</td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

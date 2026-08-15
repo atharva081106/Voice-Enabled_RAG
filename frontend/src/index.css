@@ -6,10 +6,10 @@
 
 @layer base {
   body {
-    @apply bg-surface text-on-surface font-body-md flex h-screen overflow-hidden;
+    @apply bg-surface text-on-surface font-body-md flex min-h-screen;
   }
   #root {
-    @apply w-full h-full;
+    @apply w-full flex flex-col;
   }
 }
 

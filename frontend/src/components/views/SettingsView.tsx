@@ -1,5 +1,31 @@
+import React, { useState, useEffect } from 'react';
+import { getSettings, updateSettings } from '../../api';
 
 export const SettingsView: React.FC = () => {
+  const [settings, setSettings] = useState({ theme: 'dark', default_model: 'mistral-large-latest', notifications: true });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    getSettings().then(data => {
+      setSettings(data);
+      setLoading(false);
+    }).catch(err => {
+      console.error(err);
+      setLoading(false);
+    });
+  }, []);
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      await updateSettings(settings);
+    } catch (err) {
+      console.error(err);
+    }
+    setSaving(false);
+  };
   return (
     <main className="flex-1 p-margin-mobile md:p-margin-desktop w-full flex flex-col gap-8">
       <div className="border-b-hard pb-4">
@@ -8,7 +34,8 @@ export const SettingsView: React.FC = () => {
       </div>
 
       <div className="max-w-4xl bg-surface-paper border-hard shadow-hard-lg p-8">
-        <form className="flex flex-col gap-8" onSubmit={(e) => e.preventDefault()}>
+        {loading && <p className="mb-4 text-tertiary-orange font-label-bold uppercase">Loading settings...</p>}
+        <form className="flex flex-col gap-8" onSubmit={handleSave}>
           
           {/* General Preferences */}
           <section>
@@ -33,7 +60,12 @@ export const SettingsView: React.FC = () => {
                   <p className="font-body-sm text-on-surface-variant">Automatically save query transcripts to your account.</p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" className="sr-only peer" defaultChecked />
+                  <input 
+                    type="checkbox" 
+                    className="sr-only peer" 
+                    checked={settings.notifications} 
+                    onChange={(e) => setSettings({...settings, notifications: e.target.checked})} 
+                  />
                   <div className="w-11 h-6 bg-surface-dim peer-focus:outline-none border-hard rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-primary after:border-hard after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-tertiary-teal"></div>
                 </label>
               </div>
@@ -78,8 +110,12 @@ export const SettingsView: React.FC = () => {
           </section>
 
           <div className="mt-4 flex justify-end">
-            <button type="submit" className="bg-tertiary-orange text-primary border-hard shadow-hard py-3 px-8 font-label-bold text-label-bold uppercase hover:bg-primary hover:text-tertiary-orange active-press transition-colors cursor-pointer">
-              Save Settings
+            <button 
+              type="submit" 
+              disabled={saving}
+              className="bg-tertiary-orange text-primary border-hard shadow-hard py-3 px-8 font-label-bold text-label-bold uppercase hover:bg-primary hover:text-tertiary-orange active-press transition-colors cursor-pointer disabled:opacity-50"
+            >
+              {saving ? 'Saving...' : 'Save Settings'}
             </button>
           </div>
 

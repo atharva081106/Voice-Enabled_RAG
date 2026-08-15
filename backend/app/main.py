@@ -6,9 +6,12 @@ import uvicorn
 import uuid
 
 from app.models import QueryState, FinalResponse, LatencyMetrics, DatasetResponse, DatasetItem, TextQueryRequest, TextQueryResponse, Source
-from app.workflow import workflow, qdrant, embedder
+from app.workflow import workflow, qdrant, mistral_client
 
 app = FastAPI(title="Voice-Enabled RAG API")
+
+# Global in-memory history
+HISTORY = []
 
 # Add CORS so frontend can communicate with backend
 app.add_middleware(
@@ -57,6 +60,15 @@ async def voice_query(audio: UploadFile = File(...), session_id: Optional[str] =
         # Cleanup temp file
         if os.path.exists(temp_filepath):
             os.remove(temp_filepath)
+            
+    import datetime
+    HISTORY.insert(0, {
+        "id": request_id,
+        "query": final_state.get("transcript") or "Audio not transcribed",
+        "time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
+        "status": "Success" if final_state.get("answer") else "Refused",
+        "latency": f"{final_state.get('latency', 0)}ms"
+    })
         
     return FinalResponse(
         request_id=final_state["request_id"],
@@ -115,11 +127,15 @@ async def get_datasets():
 
 @app.post("/api/text/retrieve", response_model=TextQueryResponse)
 async def text_retrieve(request: TextQueryRequest):
-    if not qdrant or not embedder:
+    if not qdrant:
         raise HTTPException(status_code=500, detail="Search engine not initialized")
         
     try:
-        query_vector = embedder.encode(request.query).tolist()
+        response = mistral_client.embeddings(
+            model="mistral-embed",
+            input=[request.query],
+        )
+        query_vector = response.data[0].embedding
         results = qdrant.search(
             collection_name="msmarco_chunks",
             query_vector=query_vector,
@@ -138,6 +154,48 @@ async def text_retrieve(request: TextQueryRequest):
         return TextQueryResponse(query=request.query, results=sources)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+# MOCK DATA FOR DASHBOARD WIRING
+MOCK_PROFILE = {
+    "name": "Neo",
+    "email": "neo@matrix.io",
+    "role": "Architect"
+}
+
+MOCK_SETTINGS = {
+    "theme": "dark",
+    "default_model": "mistral-large-latest",
+    "notifications": True
+}
+
+@app.get("/api/profile")
+async def get_profile():
+    return MOCK_PROFILE
+
+@app.post("/api/profile")
+async def update_profile(data: dict):
+    global MOCK_PROFILE
+    MOCK_PROFILE.update(data)
+    return {"status": "success", "profile": MOCK_PROFILE}
+
+@app.get("/api/settings")
+async def get_settings():
+    return MOCK_SETTINGS
+
+@app.post("/api/settings")
+async def update_settings(data: dict):
+    global MOCK_SETTINGS
+    MOCK_SETTINGS.update(data)
+    return {"status": "success", "settings": MOCK_SETTINGS}
+
+@app.post("/api/support")
+async def submit_support(data: dict):
+    # Mock saving a ticket
+    return {"status": "success", "ticket_id": str(uuid.uuid4())}
+
+@app.get("/api/history")
+async def get_history():
+    return HISTORY
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

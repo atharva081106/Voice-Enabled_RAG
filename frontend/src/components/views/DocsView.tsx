@@ -7,48 +7,124 @@ export const DocsView: React.FC = () => {
         <p className="font-body-md text-on-surface-variant">Guides, references, and tutorials for Neo-RAG.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="flex flex-col gap-8">
         
-        {/* Quick Start */}
-        <div className="bg-surface-paper border-hard shadow-hard p-6 flex flex-col gap-4 hover:-translate-y-1 hover:shadow-hard-lg transition-all cursor-pointer">
-          <div className="w-12 h-12 bg-tertiary-orange text-primary border-hard flex items-center justify-center">
-            <span className="material-symbols-outlined text-2xl">rocket_launch</span>
+        {/* /api/voice/query */}
+        <div className="bg-surface-paper border-hard shadow-hard p-6 flex flex-col gap-4">
+          <div className="flex justify-between items-center border-b-hard pb-2">
+            <h3 className="font-headline-sm text-headline-sm uppercase text-primary flex items-center gap-2">
+              <span className="bg-tertiary-orange text-primary px-2 py-1 text-xs">POST</span>
+              /api/voice/query
+            </h3>
           </div>
-          <h3 className="font-headline-sm text-headline-sm uppercase text-primary border-b-hard pb-2">Quick Start</h3>
-          <p className="font-body-md text-on-surface-variant flex-1">
-            Learn how to set up your first RAG pipeline in under 5 minutes.
+          <p className="font-body-md text-on-surface-variant">
+            Upload an audio file to be transcribed, processed through the RAG pipeline, and answered.
           </p>
-          <span className="font-label-bold text-label-bold text-tertiary-teal uppercase flex items-center gap-1 mt-auto">
-            Read More <span className="material-symbols-outlined text-sm">arrow_forward</span>
-          </span>
+          <div className="bg-surface-dim border-hard p-4 font-mono text-sm">
+            <p className="font-bold mb-2">Request (FormData):</p>
+            <ul className="list-disc pl-5 mb-4 text-on-surface-variant">
+              <li><span className="text-primary font-bold">audio</span>: File (webm/wav/mp3)</li>
+              <li><span className="text-primary font-bold">session_id</span>: string (optional)</li>
+            </ul>
+            <p className="font-bold mb-2">Response:</p>
+            <pre className="text-tertiary-teal">{`{
+  "request_id": "uuid",
+  "transcript": "Transcribed text...",
+  "answer": "Generated LLM response...",
+  "sources": [...],
+  "grounded": true,
+  "latency_ms": { ... }
+}`}</pre>
+          </div>
         </div>
 
-        {/* API Reference */}
-        <div className="bg-surface-paper border-hard shadow-hard p-6 flex flex-col gap-4 hover:-translate-y-1 hover:shadow-hard-lg transition-all cursor-pointer">
-          <div className="w-12 h-12 bg-tertiary-teal text-on-tertiary border-hard flex items-center justify-center">
-            <span className="material-symbols-outlined text-2xl">code</span>
+        {/* /api/text/retrieve */}
+        <div className="bg-surface-paper border-hard shadow-hard p-6 flex flex-col gap-4">
+          <div className="flex justify-between items-center border-b-hard pb-2">
+            <h3 className="font-headline-sm text-headline-sm uppercase text-primary flex items-center gap-2">
+              <span className="bg-tertiary-orange text-primary px-2 py-1 text-xs">POST</span>
+              /api/text/retrieve
+            </h3>
           </div>
-          <h3 className="font-headline-sm text-headline-sm uppercase text-primary border-b-hard pb-2">API Reference</h3>
-          <p className="font-body-md text-on-surface-variant flex-1">
-            Complete documentation of the Neo-RAG REST endpoints and WebSockets.
+          <p className="font-body-md text-on-surface-variant">
+            Perform a semantic search against the vector database using Mistral embeddings.
           </p>
-          <span className="font-label-bold text-label-bold text-tertiary-teal uppercase flex items-center gap-1 mt-auto">
-            Read More <span className="material-symbols-outlined text-sm">arrow_forward</span>
-          </span>
+          <div className="bg-surface-dim border-hard p-4 font-mono text-sm">
+            <p className="font-bold mb-2">Request (JSON):</p>
+            <pre className="text-on-surface-variant mb-4">{`{
+  "query": "search query text",
+  "limit": 5
+}`}</pre>
+            <p className="font-bold mb-2">Response:</p>
+            <pre className="text-tertiary-teal">{`{
+  "query": "search query text",
+  "results": [
+    {
+      "chunk_id": "uuid",
+      "text": "Chunk content...",
+      "score": 0.89
+    }
+  ]
+}`}</pre>
+          </div>
+        </div>
+      </div>
+      
+      <div className="flex flex-col gap-8">
+        
+        {/* /api/history */}
+        <div className="bg-surface-paper border-hard shadow-hard p-6 flex flex-col gap-4">
+          <div className="flex justify-between items-center border-b-hard pb-2">
+            <h3 className="font-headline-sm text-headline-sm uppercase text-primary flex items-center gap-2">
+              <span className="bg-tertiary-teal text-primary px-2 py-1 text-xs">GET</span>
+              /api/history
+            </h3>
+          </div>
+          <p className="font-body-md text-on-surface-variant">
+            Retrieve the session's voice query history.
+          </p>
+          <div className="bg-surface-dim border-hard p-4 font-mono text-sm">
+            <p className="font-bold mb-2">Response:</p>
+            <pre className="text-tertiary-teal">{`[
+  {
+    "id": "uuid",
+    "query": "What is RAG?",
+    "time": "2026-08-15 14:32",
+    "status": "Success",
+    "latency": "1540ms"
+  }
+]`}</pre>
+          </div>
         </div>
 
-        {/* Integrations */}
-        <div className="bg-surface-paper border-hard shadow-hard p-6 flex flex-col gap-4 hover:-translate-y-1 hover:shadow-hard-lg transition-all cursor-pointer">
-          <div className="w-12 h-12 bg-primary text-on-primary border-hard flex items-center justify-center">
-            <span className="material-symbols-outlined text-2xl">extension</span>
+        {/* /api/datasets */}
+        <div className="bg-surface-paper border-hard shadow-hard p-6 flex flex-col gap-4">
+          <div className="flex justify-between items-center border-b-hard pb-2">
+            <h3 className="font-headline-sm text-headline-sm uppercase text-primary flex items-center gap-2">
+              <span className="bg-tertiary-teal text-primary px-2 py-1 text-xs">GET</span>
+              /api/datasets
+            </h3>
           </div>
-          <h3 className="font-headline-sm text-headline-sm uppercase text-primary border-b-hard pb-2">Integrations</h3>
-          <p className="font-body-md text-on-surface-variant flex-1">
-            Connect external vector databases (Qdrant, Pinecone) and custom LLMs.
+          <p className="font-body-md text-on-surface-variant">
+            Get statistics and sample items from the Qdrant vector collection.
           </p>
-          <span className="font-label-bold text-label-bold text-tertiary-teal uppercase flex items-center gap-1 mt-auto">
-            Read More <span className="material-symbols-outlined text-sm">arrow_forward</span>
-          </span>
+          <div className="bg-surface-dim border-hard p-4 font-mono text-sm">
+            <p className="font-bold mb-2">Response:</p>
+            <pre className="text-tertiary-teal">{`{
+  "collection_name": "msmarco_chunks",
+  "total_vectors": 8800,
+  "items": [
+    {
+      "chunk_id": "uuid",
+      "parent_id": "doc_123",
+      "title": "MSMARCO Docs",
+      "text": "Chunk text...",
+      "strategy": "recursive",
+      "token_count": 256
+    }
+  ]
+}`}</pre>
+          </div>
         </div>
 
       </div>

@@ -135,9 +135,9 @@ export default function App() {
   }
 
   return (
-    <div className="flex h-screen w-full bg-surface">
+    <div className="flex min-h-screen w-full bg-surface">
       <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
-      <div className={`flex-1 flex flex-col md:ml-64 h-full overflow-y-auto ${activeTab === 'models' ? 'no-scrollbar' : ''}`}>
+      <div className={`flex-1 flex flex-col md:ml-64 ${activeTab === 'models' ? 'no-scrollbar' : ''}`}>
         <Header activeTab={activeTab} onTabChange={setActiveTab} />
         {renderContent()}
       </div>

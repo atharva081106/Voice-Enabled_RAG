@@ -1,5 +1,32 @@
+import React, { useState, useEffect } from 'react';
+import { getProfile, updateProfile } from '../../api';
 
 export const ProfileView: React.FC = () => {
+  const [profile, setProfile] = useState({ name: 'Alex Mercer', email: 'alex.mercer@example.com' });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    getProfile().then(data => {
+      setProfile(data);
+      setLoading(false);
+    }).catch(err => {
+      console.error(err);
+      setLoading(false);
+    });
+  }, []);
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      await updateProfile(profile);
+      // Show success
+    } catch (err) {
+      console.error(err);
+    }
+    setSaving(false);
+  };
   return (
     <main className="flex-1 p-margin-mobile md:p-margin-desktop w-full flex flex-col gap-8">
       <div className="border-b-hard pb-4">
@@ -15,8 +42,8 @@ export const ProfileView: React.FC = () => {
             <div className="w-24 h-24 bg-tertiary-teal rounded-full border-hard flex items-center justify-center mb-4">
               <span className="material-symbols-outlined text-5xl text-on-tertiary">person</span>
             </div>
-            <h3 className="font-headline-sm text-headline-sm uppercase text-primary">Alex Mercer</h3>
-            <p className="font-body-md text-on-surface-variant mb-4">Developer Tier</p>
+            <h3 className="font-headline-sm text-headline-sm uppercase text-primary">{profile.name}</h3>
+            <p className="font-body-md text-on-surface-variant mb-4">{loading ? 'Loading...' : 'Developer Tier'}</p>
             <span className="px-3 py-1 uppercase text-label-bold font-label-bold bg-surface border-hard">Active</span>
           </div>
 
@@ -52,23 +79,31 @@ export const ProfileView: React.FC = () => {
         <div className="lg:col-span-2 flex flex-col gap-8">
           <div className="bg-surface-paper border-hard shadow-hard-lg p-8">
             <h3 className="font-headline-sm text-headline-sm uppercase text-primary border-b-hard pb-2 mb-6">Account Details</h3>
-            <form className="flex flex-col gap-4" onSubmit={(e) => e.preventDefault()}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex flex-col gap-2">
-                  <label className="font-label-bold text-label-bold uppercase text-primary">First Name</label>
-                  <input type="text" className="border-hard p-3 font-body-md bg-surface w-full" defaultValue="Alex" />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className="font-label-bold text-label-bold uppercase text-primary">Last Name</label>
-                  <input type="text" className="border-hard p-3 font-body-md bg-surface w-full" defaultValue="Mercer" />
-                </div>
+            <form className="flex flex-col gap-4" onSubmit={handleSave}>
+              <div className="flex flex-col gap-2">
+                <label className="font-label-bold text-label-bold uppercase text-primary">Full Name</label>
+                <input 
+                  type="text" 
+                  className="border-hard p-3 font-body-md bg-surface w-full" 
+                  value={profile.name}
+                  onChange={(e) => setProfile({...profile, name: e.target.value})}
+                />
               </div>
               <div className="flex flex-col gap-2">
                 <label className="font-label-bold text-label-bold uppercase text-primary">Email Address</label>
-                <input type="email" className="border-hard p-3 font-body-md bg-surface-dim w-full text-on-surface-variant cursor-not-allowed" defaultValue="alex.mercer@example.com" disabled />
+                <input 
+                  type="email" 
+                  className="border-hard p-3 font-body-md bg-surface-dim w-full text-on-surface-variant cursor-not-allowed" 
+                  value={profile.email} 
+                  disabled 
+                />
               </div>
-              <button type="submit" className="mt-2 bg-primary text-on-primary border-hard shadow-hard py-2 px-6 font-label-bold text-label-bold uppercase hover:bg-tertiary-teal active-press transition-colors cursor-pointer w-fit">
-                Save Changes
+              <button 
+                type="submit" 
+                disabled={saving}
+                className="mt-2 bg-primary text-on-primary border-hard shadow-hard py-2 px-6 font-label-bold text-label-bold uppercase hover:bg-tertiary-teal active-press transition-colors cursor-pointer w-fit disabled:opacity-50"
+              >
+                {saving ? 'Saving...' : 'Save Changes'}
               </button>
             </form>
           </div>

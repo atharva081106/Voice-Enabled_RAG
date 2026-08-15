@@ -1,5 +1,23 @@
+import React, { useState } from 'react';
+import { submitSupportTicket } from '../../api';
 
 export const SupportView: React.FC = () => {
+  const [formData, setFormData] = useState({ type: 'Bug Report', subject: '', description: '' });
+  const [submitting, setSubmitting] = useState(false);
+  const [successId, setSuccessId] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      const res = await submitSupportTicket(formData);
+      setSuccessId(res.ticket_id);
+      setFormData({ type: 'Bug Report', subject: '', description: '' });
+    } catch (err) {
+      console.error(err);
+    }
+    setSubmitting(false);
+  };
   return (
     <main className="flex-1 p-margin-mobile md:p-margin-desktop w-full flex flex-col gap-8">
       <div className="border-b-hard pb-4">
@@ -12,10 +30,19 @@ export const SupportView: React.FC = () => {
         {/* Contact Form */}
         <div className="bg-surface-paper border-hard shadow-hard-lg p-8">
           <h3 className="font-headline-sm text-headline-sm uppercase text-primary border-b-hard pb-2 mb-6">Contact Support</h3>
-          <form className="flex flex-col gap-4" onSubmit={(e) => e.preventDefault()}>
+          <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+            {successId && (
+              <div className="bg-tertiary-teal text-primary p-3 font-label-bold uppercase border-hard">
+                Ticket submitted! ID: {successId}
+              </div>
+            )}
             <div className="flex flex-col gap-2">
               <label className="font-label-bold text-label-bold uppercase text-primary">Issue Type</label>
-              <select className="border-hard p-3 font-body-md bg-surface w-full focus:outline-none focus:ring-2 focus:ring-tertiary-orange">
+              <select 
+                className="border-hard p-3 font-body-md bg-surface w-full focus:outline-none focus:ring-2 focus:ring-tertiary-orange"
+                value={formData.type}
+                onChange={(e) => setFormData({...formData, type: e.target.value})}
+              >
                 <option>Bug Report</option>
                 <option>Billing Inquiry</option>
                 <option>Feature Request</option>
@@ -25,7 +52,14 @@ export const SupportView: React.FC = () => {
             
             <div className="flex flex-col gap-2">
               <label className="font-label-bold text-label-bold uppercase text-primary">Subject</label>
-              <input type="text" className="border-hard p-3 font-body-md bg-surface w-full focus:outline-none focus:ring-2 focus:ring-tertiary-orange" placeholder="Brief summary of the issue" />
+              <input 
+                type="text" 
+                className="border-hard p-3 font-body-md bg-surface w-full focus:outline-none focus:ring-2 focus:ring-tertiary-orange" 
+                placeholder="Brief summary of the issue" 
+                required
+                value={formData.subject}
+                onChange={(e) => setFormData({...formData, subject: e.target.value})}
+              />
             </div>
 
             <div className="flex flex-col gap-2">
@@ -33,11 +67,18 @@ export const SupportView: React.FC = () => {
               <textarea 
                 className="border-hard p-3 font-body-md bg-surface w-full focus:outline-none focus:ring-2 focus:ring-tertiary-orange min-h-[150px] resize-y" 
                 placeholder="Provide detailed information..."
+                required
+                value={formData.description}
+                onChange={(e) => setFormData({...formData, description: e.target.value})}
               />
             </div>
 
-            <button type="submit" className="mt-4 bg-primary text-on-primary border-hard shadow-hard py-3 px-8 font-label-bold text-label-bold uppercase hover:bg-tertiary-teal active-press transition-colors cursor-pointer w-fit">
-              Submit Ticket
+            <button 
+              type="submit" 
+              disabled={submitting}
+              className="mt-4 bg-primary text-on-primary border-hard shadow-hard py-3 px-8 font-label-bold text-label-bold uppercase hover:bg-tertiary-teal active-press transition-colors cursor-pointer w-fit disabled:opacity-50"
+            >
+              {submitting ? 'Submitting...' : 'Submit Ticket'}
             </button>
           </form>
         </div>
