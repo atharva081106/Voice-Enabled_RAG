@@ -1,0 +1,14 @@
+fastapi==0.109.2
+uvicorn==0.27.1
+pydantic==2.6.1
+qdrant-client==1.7.3
+langgraph
+langchain
+langchain-core
+sentence-transformers==2.5.1
+python-multipart==0.0.9
+httpx==0.26.0
+python-dotenv==1.0.1
+google-generativeai==0.8.2
+mistralai==0.4.2
+datasets
