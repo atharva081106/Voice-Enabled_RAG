@@ -140,12 +140,11 @@ def retrieve(state: dict) -> dict:
     results_list = []
     if qdrant and state.get("transcript"):
         try:
-            response = genai.embed_content(
-                model="models/text-embedding-004",
-                content=state.get("transcript"),
-                task_type="retrieval_query",
+            response = mistral_client.embeddings(
+                model="mistral-embed",
+                input=[state.get("transcript")],
             )
-            query_vector = response['embedding']
+            query_vector = response.data[0].embedding
             results = qdrant.search(
                 collection_name="msmarco_chunks",
                 query_vector=query_vector,

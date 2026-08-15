@@ -11,7 +11,7 @@ load_dotenv()
 # Configuration
 DATASET_NAME = "ai4bharat/msmarco-xi"
 LANGUAGE = "en" # Start with English for demonstration
-EMBEDDING_MODEL = "models/text-embedding-004" # Fast Gemini model
+EMBEDDING_MODEL = "mistral-embed" # Fast Mistral model
 QDRANT_PATH = "local_qdrant"
 COLLECTION_NAME = "msmarco_chunks"
 BATCH_SIZE = 100
@@ -25,7 +25,7 @@ def initialize_qdrant() -> QdrantClient:
         client.create_collection(
             collection_name=COLLECTION_NAME,
             vectors_config=qmodels.VectorParams(
-                size=768, # models/text-embedding-004 dimension
+                size=1024, # mistral-embed dimension
                 distance=qmodels.Distance.COSINE
             )
         )
@@ -122,18 +122,17 @@ def ingest():
             
         if len(batch_points) >= BATCH_SIZE:
             texts = [p["text"] for p in batch_points]
-            import google.generativeai as genai
-            if not os.getenv("GEMINI_API_KEY"):
-                print("Missing GEMINI_API_KEY!")
+            from mistralai.client import MistralClient
+            if not os.getenv("MISTRAL_API_KEY"):
+                print("Missing MISTRAL_API_KEY!")
                 return
-            genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+            m_client = MistralClient(api_key=os.getenv("MISTRAL_API_KEY"))
             
-            response = genai.embed_content(
+            response = m_client.embeddings(
                 model=EMBEDDING_MODEL,
-                content=texts,
-                task_type="retrieval_document",
+                input=texts,
             )
-            embeddings = response['embedding']
+            embeddings = [d.embedding for d in response.data]
             
             qdrant_points = [
                 qmodels.PointStruct(
@@ -163,13 +162,13 @@ def ingest():
     # Process remaining
     if batch_points:
         texts = [p["text"] for p in batch_points]
-        import google.generativeai as genai
-        response = genai.embed_content(
+        from mistralai.client import MistralClient
+        m_client = MistralClient(api_key=os.getenv("MISTRAL_API_KEY"))
+        response = m_client.embeddings(
             model=EMBEDDING_MODEL,
-            content=texts,
-            task_type="retrieval_document",
+            input=texts,
         )
-        embeddings = response['embedding']
+        embeddings = [d.embedding for d in response.data]
         qdrant_points = [
             qmodels.PointStruct(
                 id=p["chunk_id"],
