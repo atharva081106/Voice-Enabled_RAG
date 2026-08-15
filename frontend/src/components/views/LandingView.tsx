@@ -19,7 +19,7 @@ export const LandingView = ({ onLaunch }: LandingViewProps) => {
           </a>
           <button 
             onClick={onLaunch}
-            className="bg-primary text-on-primary border-hard shadow-hard py-2 px-6 font-label-bold text-label-bold uppercase hover:bg-surface-dim hover:text-primary active-press transition-colors cursor-pointer"
+            className="bg-tertiary-orange text-primary border-hard shadow-hard py-2 px-6 font-label-bold text-label-bold uppercase hover:bg-primary hover:text-tertiary-orange active-press transition-colors cursor-pointer"
           >
             Launch App
           </button>
@@ -56,7 +56,7 @@ export const LandingView = ({ onLaunch }: LandingViewProps) => {
       {/* Feature Grid */}
       <section className="w-full border-t-hard grid grid-cols-1 md:grid-cols-3 bg-surface-paper">
         <div className="p-8 md:p-12 border-b-hard md:border-b-0 md:border-r-hard flex flex-col gap-4 hover:bg-surface-dim transition-colors group cursor-pointer">
-          <div className="w-16 h-16 bg-surface-dim border-hard flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+          <div className="w-16 h-16 bg-tertiary-orange border-hard flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
             <span className="material-symbols-outlined text-3xl">mic</span>
           </div>
           <h2 className="font-headline-sm text-headline-sm uppercase text-primary">Voice-First</h2>
