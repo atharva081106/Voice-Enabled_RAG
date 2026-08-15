@@ -1,16 +1,17 @@
 import os
 from typing import List, Dict, Any
 from datasets import load_dataset
-from sentence_transformers import SentenceTransformer
 from qdrant_client import QdrantClient
 from qdrant_client import models as qmodels
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 import uuid
+from dotenv import load_dotenv
+load_dotenv()
 
 # Configuration
 DATASET_NAME = "ai4bharat/msmarco-xi"
 LANGUAGE = "en" # Start with English for demonstration
-EMBEDDING_MODEL = "all-MiniLM-L6-v2" # Fast, low-latency model
+EMBEDDING_MODEL = "models/text-embedding-004" # Fast Gemini model
 QDRANT_PATH = "local_qdrant"
 COLLECTION_NAME = "msmarco_chunks"
 BATCH_SIZE = 100
@@ -24,7 +25,7 @@ def initialize_qdrant() -> QdrantClient:
         client.create_collection(
             collection_name=COLLECTION_NAME,
             vectors_config=qmodels.VectorParams(
-                size=384, # all-MiniLM-L6-v2 dimension
+                size=768, # models/text-embedding-004 dimension
                 distance=qmodels.Distance.COSINE
             )
         )
@@ -88,9 +89,6 @@ def ingest():
         {"id": "5", "title": "Chunking Strategies", "text": "Semantic chunking breaks text by logical boundaries. Adaptive token-window chunking uses a fixed size and overlap to ensure context is not lost across chunk boundaries. Semantic sentence chunking splits the text sentence by sentence."}
     ]
     
-    print(f"Loading embedding model {EMBEDDING_MODEL}...")
-    encoder = SentenceTransformer(EMBEDDING_MODEL)
-    
     print("Initializing Qdrant...")
     client = initialize_qdrant()
     
@@ -124,7 +122,18 @@ def ingest():
             
         if len(batch_points) >= BATCH_SIZE:
             texts = [p["text"] for p in batch_points]
-            embeddings = encoder.encode(texts).tolist()
+            import google.generativeai as genai
+            if not os.getenv("GEMINI_API_KEY"):
+                print("Missing GEMINI_API_KEY!")
+                return
+            genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+            
+            response = genai.embed_content(
+                model=EMBEDDING_MODEL,
+                content=texts,
+                task_type="retrieval_document",
+            )
+            embeddings = response['embedding']
             
             qdrant_points = [
                 qmodels.PointStruct(
@@ -154,7 +163,13 @@ def ingest():
     # Process remaining
     if batch_points:
         texts = [p["text"] for p in batch_points]
-        embeddings = encoder.encode(texts).tolist()
+        import google.generativeai as genai
+        response = genai.embed_content(
+            model=EMBEDDING_MODEL,
+            content=texts,
+            task_type="retrieval_document",
+        )
+        embeddings = response['embedding']
         qdrant_points = [
             qmodels.PointStruct(
                 id=p["chunk_id"],

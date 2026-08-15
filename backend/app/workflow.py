@@ -27,7 +27,6 @@ class GraphState(TypedDict, total=False):
     generation_tries: int
 
 from qdrant_client import QdrantClient
-from sentence_transformers import SentenceTransformer
 import google.generativeai as genai
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
@@ -57,11 +56,9 @@ if MISTRAL_API_KEY:
 # Setup models (global singletons for demo)
 try:
     qdrant = QdrantClient(path="local_qdrant")
-    embedder = SentenceTransformer("all-MiniLM-L6-v2")
 except Exception as e:
-    print(f"Warning: Failed to initialize Qdrant or Embedder: {e}")
+    print(f"Warning: Failed to initialize Qdrant: {e}")
     qdrant = None
-    embedder = None
 
 def transcribe(state: dict) -> dict:
     start_time = time.time()
@@ -141,9 +138,14 @@ def classify(state: dict) -> dict:
 def retrieve(state: dict) -> dict:
     start_time = time.time()
     results_list = []
-    if qdrant and embedder and state.get("transcript"):
-        query_vector = embedder.encode(state.get("transcript")).tolist()
+    if qdrant and state.get("transcript"):
         try:
+            response = genai.embed_content(
+                model="models/text-embedding-004",
+                content=state.get("transcript"),
+                task_type="retrieval_query",
+            )
+            query_vector = response['embedding']
             results = qdrant.search(
                 collection_name="msmarco_chunks",
                 query_vector=query_vector,

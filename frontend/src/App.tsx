@@ -15,8 +15,10 @@ import { DocsView } from './components/views/DocsView';
 import { SupportView } from './components/views/SupportView';
 import { ProfileView } from './components/views/ProfileView';
 import { SettingsView } from './components/views/SettingsView';
+import { LandingView } from './components/views/LandingView';
 
 export default function App() {
+  const [showLanding, setShowLanding] = useState(true);
   const [activeTab, setActiveTab] = useState('compute');
   const [isProcessing, setIsProcessing] = useState(false);
   const [response, setResponse] = useState<FinalResponse | null>(null);
@@ -127,6 +129,10 @@ export default function App() {
       </main>
     );
   };
+
+  if (showLanding) {
+    return <LandingView onLaunch={() => setShowLanding(false)} />;
+  }
 
   return (
     <div className="flex h-screen w-full bg-surface">
