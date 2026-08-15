@@ -11,7 +11,7 @@ interface LandingViewProps {
 const BrutalistShape = () => {
   const meshRef = useRef<THREE.Mesh>(null);
 
-  useFrame((state, delta) => {
+  useFrame((_state, delta) => {
     if (meshRef.current) {
       meshRef.current.rotation.x += delta * 0.15;
       meshRef.current.rotation.y += delta * 0.2;
@@ -39,7 +39,7 @@ export const LandingView = ({ onLaunch }: LandingViewProps) => {
 
   const itemVariants = {
     hidden: { opacity: 0, y: 50 },
-    visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100, damping: 10 } }
+    visible: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 100, damping: 10 } }
   };
 
   return (
